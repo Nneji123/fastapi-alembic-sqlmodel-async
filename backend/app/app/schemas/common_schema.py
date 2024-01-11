@@ -43,9 +43,7 @@ class IChatResponse(BaseModel):
 
     @field_validator("id", "message_id")
     def check_ids(cls, v):
-        if v == "" or v is None:
-            return str(uuid7())
-        return v
+        return str(uuid7()) if v == "" or v is None else v
 
     @field_validator("sender")
     def sender_must_be_bot_or_you(cls, v):

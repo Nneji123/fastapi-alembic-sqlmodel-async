@@ -36,8 +36,7 @@ class CRUDHero(CRUDBase[Hero, IHeroCreate, IHeroUpdate]):
         )
         query = select(func.count()).select_from(subquery)
         count = await db_session.execute(query)
-        value = count.scalar_one_or_none()
-        return value
+        return count.scalar_one_or_none()
 
 
 hero = CRUDHero(Hero)

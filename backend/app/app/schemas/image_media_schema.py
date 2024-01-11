@@ -34,5 +34,4 @@ class IImageMediaReadCombined(ImageMediaBase):
         image_media_fields = {
             k: v for k, v in values.items() if k in ImageMedia.__fields__
         }
-        output = {**image_media_fields, **link_fields}
-        return output
+        return image_media_fields | link_fields

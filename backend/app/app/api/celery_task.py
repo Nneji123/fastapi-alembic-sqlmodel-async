@@ -48,15 +48,13 @@ def predict_transformers_pipeline(self, prompt: str):
     """
     Essentially the run method of PredictTask
     """
-    result = self.pipeline(prompt)
-    return result
+    return self.pipeline(prompt)
 
 
 @celery.task(name="tasks.increment")
 def increment(value: int) -> int:
     time.sleep(5)
-    new_value = value + 1
-    return new_value
+    return value + 1
 
 
 async def get_hero(hero_id: UUID) -> Hero:

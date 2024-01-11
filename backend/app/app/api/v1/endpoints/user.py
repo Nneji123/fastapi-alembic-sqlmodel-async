@@ -91,7 +91,7 @@ async def read_users_list_by_role_name(
     Required roles:
     - admin
     """
-    user_status = True if user_status == IUserStatus.active else False
+    user_status = user_status == IUserStatus.active
     query = (
         select(User)
         .join(Role, User.role_id == Role.id)

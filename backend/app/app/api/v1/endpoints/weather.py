@@ -36,9 +36,7 @@ def do_sync_work(city: str):
     """
     Gets weather by sync work
     """
-    # This similar aproach will be used to interface with celery
-    weather = syncify(get_weather_async)(city=city)
-    return weather
+    return syncify(get_weather_async)(city=city)
 
 
 @router.get("/weather_sync/sync1")
