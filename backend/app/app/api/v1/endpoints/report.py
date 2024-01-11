@@ -58,7 +58,7 @@ async def export_users_list(
         media_type = "text/csv"
         filename = "users.csv"
 
-    response = StreamingResponse(
+    return StreamingResponse(
         iter([stream.getvalue()]),
         media_type=media_type,
         headers={
@@ -66,8 +66,6 @@ async def export_users_list(
             "Access-Control-Expose-Headers": "Content-Disposition",
         },
     )
-
-    return response
 
 
 @router.get("/heroes_list")
@@ -103,7 +101,7 @@ async def export_heroes_list(
         media_type = "text/csv"
         filename = "heroes.csv"
 
-    response = StreamingResponse(
+    return StreamingResponse(
         iter([stream.getvalue()]),
         media_type=media_type,
         headers={
@@ -111,5 +109,3 @@ async def export_heroes_list(
             "Access-Control-Expose-Headers": "Content-Disposition",
         },
     )
-
-    return response

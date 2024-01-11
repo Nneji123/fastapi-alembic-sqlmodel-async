@@ -34,11 +34,11 @@ class MinioClient:
         return self.bucket_name
 
     def presigned_get_object(self, bucket_name, object_name):
-        # Request URL expired after 7 days
-        url = self.client.presigned_get_object(
-            bucket_name=bucket_name, object_name=object_name, expires=timedelta(days=7)
+        return self.client.presigned_get_object(
+            bucket_name=bucket_name,
+            object_name=object_name,
+            expires=timedelta(days=7),
         )
-        return url
 
     def check_file_name_exists(self, bucket_name, file_name):
         try:
@@ -62,9 +62,8 @@ class MinioClient:
             url = self.presigned_get_object(
                 bucket_name=self.bucket_name, object_name=object_name
             )
-            data_file = IMinioResponse(
+            return IMinioResponse(
                 bucket_name=self.bucket_name, file_name=object_name, url=url
             )
-            return data_file
         except Exception as e:
             raise e

@@ -25,10 +25,7 @@ class CRUDUser(CRUDBase[User, IUserCreate, IUserUpdate]):
         user = await super().get(id=id)
         if not user:
             return None
-        if user.is_active is False:
-            return None
-
-        return user
+        return None if user.is_active is False else user
 
     async def create_with_role(
         self, *, obj_in: IUserCreate, db_session: AsyncSession | None = None
@@ -58,9 +55,7 @@ class CRUDUser(CRUDBase[User, IUserCreate, IUserUpdate]):
         user = await self.get_by_email(email=email)
         if not user:
             return None
-        if not verify_password(password, user.hashed_password):
-            return None
-        return user
+        return None if not verify_password(password, user.hashed_password) else user
 
     async def update_photo(
         self,

@@ -23,13 +23,12 @@ reusable_oauth2 = OAuth2PasswordBearer(
 
 
 async def get_redis_client() -> Redis:
-    redis = await aioredis.from_url(
+    return await aioredis.from_url(
         f"redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}",
         max_connections=10,
         encoding="utf8",
         decode_responses=True,
     )
-    return redis
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
@@ -104,10 +103,9 @@ def get_current_user(required_roles: list[str] = None) -> Callable[[], User]:
 
 
 def minio_auth() -> MinioClient:
-    minio_client = MinioClient(
+    return MinioClient(
         access_key=settings.MINIO_ROOT_USER,
         secret_key=settings.MINIO_ROOT_PASSWORD,
         bucket_name=settings.MINIO_BUCKET,
         minio_url=settings.MINIO_URL,
     )
-    return minio_client

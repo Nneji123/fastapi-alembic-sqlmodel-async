@@ -164,39 +164,38 @@ async def get_new_access_token(
             detail="There is no required field in your token. Please contact the administrator.",
         )
 
-    if payload["type"] == "refresh":
-        user_id = payload["sub"]
-        valid_refresh_tokens = await get_valid_tokens(
-            redis_client, user_id, TokenType.REFRESH
-        )
-        if valid_refresh_tokens and body.refresh_token not in valid_refresh_tokens:
-            raise HTTPException(status_code=403, detail="Refresh token invalid")
-
-        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-        user = await crud.user.get(id=user_id)
-        if user.is_active:
-            access_token = security.create_access_token(
-                payload["sub"], expires_delta=access_token_expires
-            )
-            valid_access_get_valid_tokens = await get_valid_tokens(
-                redis_client, user.id, TokenType.ACCESS
-            )
-            if valid_access_get_valid_tokens:
-                await add_token_to_redis(
-                    redis_client,
-                    user,
-                    access_token,
-                    TokenType.ACCESS,
-                    settings.ACCESS_TOKEN_EXPIRE_MINUTES,
-                )
-            return create_response(
-                data=TokenRead(access_token=access_token, token_type="bearer"),
-                message="Access token generated correctly",
-            )
-        else:
-            raise HTTPException(status_code=404, detail="User inactive")
-    else:
+    if payload["type"] != "refresh":
         raise HTTPException(status_code=404, detail="Incorrect token")
+    user_id = payload["sub"]
+    valid_refresh_tokens = await get_valid_tokens(
+        redis_client, user_id, TokenType.REFRESH
+    )
+    if valid_refresh_tokens and body.refresh_token not in valid_refresh_tokens:
+        raise HTTPException(status_code=403, detail="Refresh token invalid")
+
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    user = await crud.user.get(id=user_id)
+    if user.is_active:
+        access_token = security.create_access_token(
+            payload["sub"], expires_delta=access_token_expires
+        )
+        valid_access_get_valid_tokens = await get_valid_tokens(
+            redis_client, user.id, TokenType.ACCESS
+        )
+        if valid_access_get_valid_tokens:
+            await add_token_to_redis(
+                redis_client,
+                user,
+                access_token,
+                TokenType.ACCESS,
+                settings.ACCESS_TOKEN_EXPIRE_MINUTES,
+            )
+        return create_response(
+            data=TokenRead(access_token=access_token, token_type="bearer"),
+            message="Access token generated correctly",
+        )
+    else:
+        raise HTTPException(status_code=404, detail="User inactive")
 
 
 @router.post("/access-token")

@@ -82,20 +82,19 @@ async def get_result_from_batch_task(task_id: str) -> IPostResponseBase:
     """
     async_result = celery.AsyncResult(task_id)
 
-    if async_result.ready():
-        if not async_result.successful():
-            raise HTTPException(
-                status_code=404,
-                detail=f"Task {task_id} with state {async_result.state}.",
-            )
-
-        result = async_result.get(timeout=1.0)
-        return create_response(
-            message="Prediction got succesfully",
-            data={"task_id": task_id, "result": result},
-        )
-    else:
+    if not async_result.ready():
         raise HTTPException(
             status_code=404,
             detail=f"Task {task_id} does not exist or is still running.",
         )
+    if not async_result.successful():
+        raise HTTPException(
+            status_code=404,
+            detail=f"Task {task_id} with state {async_result.state}.",
+        )
+
+    result = async_result.get(timeout=1.0)
+    return create_response(
+        message="Prediction got succesfully",
+        data={"task_id": task_id, "result": result},
+    )

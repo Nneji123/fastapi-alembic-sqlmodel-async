@@ -63,20 +63,16 @@ async def user_id_identifier(request: Request):
                         detail="There is no required field in your token. Please contact the administrator.",
                     )
 
-                user_id = payload["sub"]
-
-                return user_id
-
+                return payload["sub"]
     if request.scope["type"] == "websocket":
         return request.scope["path"]
 
-    forwarded = request.headers.get("X-Forwarded-For")
-    if forwarded:
+    if forwarded := request.headers.get("X-Forwarded-For"):
         return forwarded.split(",")[0]
 
     client = request.client
     ip = getattr(client, "host", "0.0.0.0")
-    return ip + ":" + request.scope["path"]
+    return f"{ip}:" + request.scope["path"]
 
 
 @asynccontextmanager
@@ -172,8 +168,6 @@ async def websocket_endpoint(websocket: WebSocket, user_id: UUID):
     redis_client = await get_redis_client()
     ws_ratelimit = WebSocketRateLimiter(times=200, hours=24)
     chat = ChatOpenAI(temperature=0, openai_api_key=settings.OPENAI_API_KEY)
-    chat_history = []
-
     async with db():
         user = await crud.user.get_by_id_active(id=user_id)
         if user is not None:
@@ -184,6 +178,8 @@ async def websocket_endpoint(websocket: WebSocket, user_id: UUID):
         await websocket.send_text(f"Error: User ID '{user_id}' not found or inactive.")
         await websocket.close()
     else:
+        chat_history = []
+
         while True:
             try:
                 # Receive and send back the client message
